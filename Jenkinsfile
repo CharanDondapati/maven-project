@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        node {
+            label 'workernode2'
+        }
+    }
 
     stages {
         stage('Checkout') {
@@ -18,7 +22,7 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t mywebapp:v${BUILD_NUMBER} ."
+                sh "docker build -t webapp:v${BUILD_NUMBER} ."
             }
         }
         
@@ -26,8 +30,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
         	        sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                    sh "docker tag mywebapp:v${BUILD_NUMBER} ${env.dockerHubUser}/mywebapp:v${BUILD_NUMBER}"
-                    sh "docker push ${env.dockerHubUser}/mywebapp:v${BUILD_NUMBER}"
+                    sh "docker tag webapp:v${BUILD_NUMBER} ${env.dockerHubUser}/webapp:v${BUILD_NUMBER}"
+                    sh "docker push ${env.dockerHubUser}/webapp:v${BUILD_NUMBER}"
                 }
 
             }
